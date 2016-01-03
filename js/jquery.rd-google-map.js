@@ -140,9 +140,9 @@
 
         defaults = {
             map: {
-                x: -73.9924068,
-                y: 40.646197,
-                zoom: 14
+                y: 49.1139040,
+                x: 2.2085190,
+                zoom: 8
             },
             locations: []
         };
@@ -177,10 +177,32 @@
         return locations;
     }
 
+    var calculate = function(map){
+        $('#buttonDirection').on('click',function(e){
+            e.preventDefault();
+            var origin      = $('#depart').val(); // Le point départ
+            var destination = $('#arrive').val(); // Le point d'arrivé
+            if(origin && destination){
+                var request = {
+                    origin      : origin,
+                    destination : destination,
+                    travelMode  : google.maps.DirectionsTravelMode.DRIVING // Type de transport
+                }
+                var directionsDisplay = new google.maps.DirectionsRenderer();
+                directionsDisplay.setMap(map);
+                var directionsService = new google.maps.DirectionsService(); // Service de calcul d'itinéraire
+                directionsService.route(request, function(response, status){ // Envoie de la requête pour calculer le parcours
+                    if(status == google.maps.DirectionsStatus.OK){
+                        directionsDisplay.setDirections(response); // Trace l'itinéraire sur la carte et les différentes étapes du parcours
+                    }
+                });
+            }
+        })
+    };
+
     $.fn.googleMap = function (settings) {
 
         settings = $.extend(true, {}, def_settings, settings);
-
         $(this).each(function () {
             var $this = $(this);
 
@@ -207,7 +229,9 @@
                 }),
                 infowindow = new google.maps.InfoWindow(),
                 markers = [];
-
+            calculate(map);
+            
+            
             for (var i in options.locations) {
                 markers[i] = new google.maps.Marker(
                     {
@@ -239,6 +263,7 @@
                     });
                 }
             }
+            
 
             google.maps.event.addDomListener(window, 'resize', function() {
                 map.setCenter(new google.maps.LatLng(
